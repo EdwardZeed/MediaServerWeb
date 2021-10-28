@@ -1258,8 +1258,17 @@ def find_matchingmovies(searchterm):
         # Fill in the SQL below with a query to get all information about movies    #
         # that match a given search term                                            #
         #############################################################################
-        sql = """
-        """
+        sql = """select 
+                m.*, mnew.count as count  
+            from 
+                mediaserver.movie m, 
+                (select 
+                    m1.movie_id, count(me1.media_id) as count 
+                from 
+                    mediaserver.movie m1 left outer join mediaserver.VideoMedia me1 on (m1.movie_id=me1.movie_id) 
+                    group by t1.movie_id) mnew 
+            where m.movie_id = mnew.movie_id and lower(movie_title) ~ lower(%s)
+            order by m.movie_id;""""
 
         r = dictfetchall(cur,sql,(searchterm,))
         print("return val is:")
